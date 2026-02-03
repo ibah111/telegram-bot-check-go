@@ -1,0 +1,18 @@
+.git
+.idea
+.vscode
+.cursor
+
+*.exe
+*.dll
+*.so
+*.dylib
+
+# secrets
+.env
+
+# go build/cache artifacts (if any appear later)
+bin
+dist
+out
+tmp

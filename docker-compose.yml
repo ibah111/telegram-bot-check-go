@@ -1,0 +1,20 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+
+    # Provide env vars to the process (optional if you also mount .env)
+    env_file:
+      - ./.env
+
+    # Your code uses godotenv.Load() which reads ".env" from current working dir.
+    # This mount makes sure /app/.env exists inside the container.
+    volumes:
+      - type: bind
+        source: ./.env
+        target: /app/.env
+        read_only: true
+
+    # No ports exposed: bot uses outgoing HTTPS to Telegram + your SERVER_URL
