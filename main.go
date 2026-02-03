@@ -80,6 +80,7 @@ func main() {
 						ChatID: ADMIN_ID,
 						Text:   Text,
 					})
+					healthcheck = prev_healthcheck
 				}
 			}
 		}
