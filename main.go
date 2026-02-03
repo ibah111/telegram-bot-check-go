@@ -71,7 +71,8 @@ func main() {
 					ok = "NOT OK"
 				}
 
-				var Text string = "ibahbalezin.ddns.net " + ok
+				now := time.Now()
+				var Text string = fmt.Sprintf("ibahbalezin.ddns.net %s — %s", ok, now.Format("2006-01-02 15:04:05 Mon"))
 
 				fmt.Println(Text)
 				fmt.Println("PREV-HEALTHCHECK", prev_healthcheck)
@@ -108,11 +109,10 @@ func healthcheckRequest(serverUrl string) bool {
 			if err != nil {
 				return nil, err
 			}
-			// addr тут — "host:port", но RemoteAddr покажет IP:port
 			fmt.Println("Connected to:", conn.RemoteAddr().String())
 			return conn, nil
 		},
-		DisableKeepAlives: true, // чтобы не использовать старое соединение
+		DisableKeepAlives: true,
 	}
 
 	client := &http.Client{
