@@ -25,6 +25,7 @@ type HealthcheckResponce struct {
 func main() {
 
 	var healthcheck bool = false
+	var prev_healthcheck bool = false
 
 	err := godotenv.Load()
 	if err != nil {
@@ -32,13 +33,9 @@ func main() {
 	}
 
 	var BOT_TOKEN string = os.Getenv("BOT_TOKEN")
-	fmt.Println("BOT_TOKEN: ", BOT_TOKEN[:10]+"***")
 	var ADMIN_ID string = os.Getenv("ADMIN_ID")
-	fmt.Println("ADMIN_ID:", ADMIN_ID)
 	var SERVER_URL string = os.Getenv("SERVER_URL")
-	fmt.Println("SERVER_URL:", SERVER_URL)
 	var SERVER_PORT string = os.Getenv("SERVER_PORT")
-	fmt.Println("SERVER_PORT:", SERVER_PORT)
 	severUrl := SERVER_URL + ":" + SERVER_PORT
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
@@ -63,8 +60,27 @@ func main() {
 			case <-ctx.Done():
 				return
 			case <-ticker.C:
+
 				healthcheck = healthcheckRequest(severUrl)
+
 				fmt.Println("Ticker ticked", healthcheck)
+
+				var ok string = "OK"
+				if healthcheck == false {
+					ok = "NOT OK"
+				}
+
+				var Text string = "ibahbalezin.ddns.net " + ok
+
+				fmt.Println(Text)
+				fmt.Println("PREV-HEALTHCHECK", prev_healthcheck)
+				fmt.Println("HEALTHCHECK", healthcheck)
+				if prev_healthcheck != healthcheck {
+					tgbot.SendMessage(ctx, &bot.SendMessageParams{
+						ChatID: ADMIN_ID,
+						Text:   Text,
+					})
+				}
 			}
 		}
 	}()
