@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -60,7 +61,7 @@ func main() {
 			case <-ctx.Done():
 				return
 			case <-ticker.C:
-
+				fmt.Println("==========TICKER START==========")
 				healthcheck = healthcheckRequest(severUrl)
 
 				fmt.Println("Ticker ticked", healthcheck)
@@ -82,6 +83,7 @@ func main() {
 					})
 				}
 				prev_healthcheck = healthcheck
+				fmt.Println("==========TICKER END============")
 			}
 		}
 	}()
@@ -99,7 +101,27 @@ func handler(ctx context.Context, tgbot *bot.Bot, update *models.Update) {
 }
 
 func healthcheckRequest(serverUrl string) bool {
-	resp, err := http.Get(serverUrl)
+	transport := &http.Transport{
+		DialContext: func(ctx context.Context, network string, addr string) (net.Conn, error) {
+			d := net.Dialer{}
+			conn, err := d.DialContext(ctx, network, addr)
+			if err != nil {
+				return nil, err
+			}
+			// addr тут — "host:port", но RemoteAddr покажет IP:port
+			fmt.Println("Connected to:", conn.RemoteAddr().String())
+			return conn, nil
+		},
+		DisableKeepAlives: true, // чтобы не использовать старое соединение
+	}
+
+	client := &http.Client{
+		Transport: transport,
+		Timeout:   10 * time.Second,
+	}
+
+	resp, err := client.Get(serverUrl)
+
 	if err != nil {
 		fmt.Println("Ошибка при проверке доступности сервера", err)
 		return false
