@@ -56,7 +56,7 @@ func main() {
 	fmt.Println("Bot started")
 
 	go func() {
-		ticker := time.NewTicker(2 * time.Second)
+		ticker := time.NewTicker(15 * time.Second)
 		defer ticker.Stop()
 		for {
 			select {
